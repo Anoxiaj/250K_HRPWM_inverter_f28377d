@@ -244,6 +244,10 @@ void InitADC(void)
     AdcaRegs.ADCSOC0CTL.bit.CHSEL = 0;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
     AdcaRegs.ADCSOC0CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
+    AdcaRegs.ADCSOC1CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcaRegs.ADCSOC1CTL.bit.CHSEL = 0;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
+    AdcaRegs.ADCSOC1CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+
 
 
     EDIS;
