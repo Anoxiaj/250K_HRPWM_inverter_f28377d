@@ -23,6 +23,7 @@ __interrupt void MainControlISR(void)
 {
     float volume;
     Uint32 temp,temp1;
+    float adcresult;
     /*
      * theta=wt , w=2pie f
      */

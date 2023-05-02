@@ -196,6 +196,10 @@ void InitADC(void)
     EALLOW;
     /**********Main ADC Configuration**********/
 
+    AdcaRegs.ADCCTL1.all = 0x0004;    //3-0:0100
+    AdcbRegs.ADCCTL1.all = 0x0004;    //INTPULSEPOS, ADC Interrupt Pulse Position.
+    AdccRegs.ADCCTL1.all = 0x0004;    // 0=start of conversion
+    AdcdRegs.ADCCTL1.all = 0x0004;    // 1=end of conversion
     // bit 15-14     00:     reserved
     // bit 13        0:      ADCBSY, ADC busy, read-only
     // bit 12        0:      reserved
@@ -204,34 +208,30 @@ void InitADC(void)
     // bit 6-3       0000:   reserved
     // bit 2         1:      INTPULSEPOS, INT pulse generation, 0=start of conversion, 1=end of conversion
     // bit 1-0       00:     reserved
-    AdcaRegs.ADCCTL1.all = 0x0004;    //3-0:0100
-    AdcbRegs.ADCCTL1.all = 0x0004;    //INTPULSEPOS, ADC Interrupt Pulse Position.
-    AdccRegs.ADCCTL1.all = 0x0004;    // 0=start of conversion
-    AdcdRegs.ADCCTL1.all = 0x0004;    // 1=end of conversion
 
     /**********ADC Clock Configuration**********/
-
+    AdcaRegs.ADCCTL2.all = 0x0006;      //3-0£º0110
+    AdcbRegs.ADCCTL2.all = 0x0006;      //0110=CPUCLK/4
+    AdccRegs.ADCCTL2.all = 0x0006;      //ADCCLK : 5M--50M
+    AdcdRegs.ADCCTL2.all = 0x0006;
     // bit 15-8      0's:    reserved
     // bit 7         0:      SIGNALMODE, configured by AdcSetMode() below to get calibration correct
     // bit 6         0:      RESOLUTION, configured by AdcSetMode() below to get calibration correct
     // bit 5-4       00:     reserved
     // bit 3-0       0110:   PRESCALE, ADC clock prescaler.  0110=CPUCLK/4
-    AdcaRegs.ADCCTL2.all = 0x0006;      //3-0£º0110
-    AdcbRegs.ADCCTL2.all = 0x0006;      //0110=CPUCLK/4
-    AdccRegs.ADCCTL2.all = 0x0006;      //ADCCLK : 5M--50M
-    AdcdRegs.ADCCTL2.all = 0x0006;
+
 
     /**********ADC Burst(Í»·¢) Control Register**********/
-
+//    AdcaRegs.ADCBURSTCTL.all = 0x0000;  //0=burst mode disabled
+//    AdcbRegs.ADCBURSTCTL.all = 0x0000;
+//    AdccRegs.ADCBURSTCTL.all = 0x0000;
+//    AdcdRegs.ADCBURSTCTL.all = 0x0000;
     // bit 15        0:      BURSTEN, 0=burst mode disabled, 1=burst mode enabled
     // bit 14-12     000:    reserved
     // bit 11-8      0000:   BURSTSIZE, 0=1 SOC converted (don't care)
     // bit 7-6       00:     reserved
     // bit 5-0       000000: BURSTTRIGSEL, 00=software only (don't care)
-    AdcaRegs.ADCBURSTCTL.all = 0x0000;  //0=burst mode disabled
-    AdcbRegs.ADCBURSTCTL.all = 0x0000;
-    AdccRegs.ADCBURSTCTL.all = 0x0000;
-    AdcdRegs.ADCBURSTCTL.all = 0x0000;
+
 
     AdcSetMode(ADC_ADCA, ADC_RESOLUTION_12BIT, ADC_SIGNALMODE_SINGLE);
     AdcSetMode(ADC_ADCB, ADC_RESOLUTION_12BIT, ADC_SIGNALMODE_SINGLE);
@@ -245,10 +245,31 @@ void InitADC(void)
     AdcaRegs.ADCSOC0CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
     AdcaRegs.ADCSOC1CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC1CTL.bit.CHSEL = 0;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
+    AdcaRegs.ADCSOC1CTL.bit.CHSEL = 1;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
     AdcaRegs.ADCSOC1CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
+    AdcaRegs.ADCSOC2CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcaRegs.ADCSOC2CTL.bit.CHSEL = 2;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
+    AdcaRegs.ADCSOC2CTL.bit.ACQPS = 14;  //sample wi
 
+    AdcaRegs.ADCSOC3CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcaRegs.ADCSOC3CTL.bit.CHSEL = 3;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
+    AdcaRegs.ADCSOC3CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+
+    AdcaRegs.ADCSOCPRICTL.bit.SOCPRIORITY = 0;  // All SOCs handled in round-robin mode
+
+    //
+    // Power up the ADC
+    //
+    AdcaRegs.ADCCTL1.bit.ADCPWDNZ = 1;
+    AdcbRegs.ADCCTL1.bit.ADCPWDNZ = 1;
+    AdccRegs.ADCCTL1.bit.ADCPWDNZ = 1;
+    AdcdRegs.ADCCTL1.bit.ADCPWDNZ = 1;
+
+    //
+    // Delay for 10ms to allow ADC time to power up
+    //
+    DELAY_US(1000);
 
     EDIS;
 
