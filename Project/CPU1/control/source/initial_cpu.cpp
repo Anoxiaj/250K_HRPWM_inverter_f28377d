@@ -86,25 +86,26 @@ void InitCPU(void)
     //
     InitPieVectTable();
 
-//    // Step 5. User specific code, enable interrupts:
-    //
-       UpdateFine = 1;
-       DutyFine = 0;
-       status = SFO_INCOMPLETE;
+    UpdateFine = 1;
+    DutyFine = 0;
+    status = SFO_INCOMPLETE;
 
 //       //
-       // Calling SFO() updates the HRMSTEP register with calibrated MEP_ScaleFactor.
-       // HRMSTEP must be populated with a scale factor value prior to enabling
-       // high resolution period control.
-       //
-         while(status == SFO_INCOMPLETE)
-          {
-               status = SFO();
-               if(status == SFO_ERROR)
-               {
-                   error();   // SFO function returns 2 if an error occurs & # of MEP
-               }              // steps/coarse step exceeds maximum of 255.
-          }
+    // Calling SFO() updates the HRMSTEP register with calibrated MEP_ScaleFactor.
+    // HRMSTEP must be populated with a scale factor value prior to enabling
+    // high resolution period control.
+    //
+      while(status == SFO_INCOMPLETE)
+       {
+            status = SFO();
+            if(status == SFO_ERROR)
+            {
+                error();   // SFO function returns 2 if an error occurs & # of MEP
+            }              // steps/coarse step exceeds maximum of 255.
+       }
+
+//    // Step 5. User specific code, enable interrupts:
+    //
 
     //
     // Interrupts that are used in this example are re-mapped to
@@ -143,7 +144,7 @@ void InitCPU(void)
     EDIS;
 
     //
-    // Step 4. User specific code, enable interrupts:
+    // Step 6. User specific code, enable interrupts:
     //
 
     //
