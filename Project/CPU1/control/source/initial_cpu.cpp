@@ -4,6 +4,7 @@
 #include "F28x_Project.h"
 #include "control/include/initial_cpu.h"
 #include "control/include/main_control.h"
+#include "control/include/cla_control_shared.h"
 #include "SFO_V8.h"
 
 #define STATUS_SUCCESS    1
@@ -120,7 +121,7 @@ void InitCPU(void)
     // Step 4. Configure the CLA memory spaces first followed by
     // the CLA task vectors
     //
-
+//    InitCLA();
 
     //
     // Step 5. Initialize the Device Peripheral.
@@ -171,6 +172,65 @@ void InitGPIO(void)
 {
 
 }
+
+void InitCLA(void)
+{
+    EALLOW;                     // Enable EALLOW protected register access
+
+    extern uint32_t Cla1funcsRunStart, Cla1funcsLoadStart, Cla1funcsLoadSize;
+    #ifdef _FLASH
+    //Copy over code from FLASH to RAM
+    memcpy((uint32_t *)&Cla1funcsRunStart, (uint32_t *)&Cla1funcsLoadStart,
+            (uint32_t)&Cla1funcsLoadSize);
+    #endif //_FLASH
+    //
+    // Initialize and wait for CLA1ToCPUMsgRAM
+    //
+    MemCfgRegs.MSGxINIT.bit.INIT_CLA1TOCPU = 1;
+    while(MemCfgRegs.MSGxINITDONE.bit.INITDONE_CLA1TOCPU != 1){};
+
+    //
+    // Initialize and wait for CPUToCLA1MsgRAM
+    //
+    MemCfgRegs.MSGxINIT.bit.INIT_CPUTOCLA1 = 1;
+    while(MemCfgRegs.MSGxINITDONE.bit.INITDONE_CPUTOCLA1 != 1){};
+
+    //--- Memory Configuration - Master CPU and CLA Select
+    //configure LS0RAM and LS1RAM as data spaces for the CLA
+    MemCfgRegs.LSxMSEL.bit.MSEL_LS0 = 1;
+    MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS0 = 0;
+    MemCfgRegs.LSxMSEL.bit.MSEL_LS1 = 1;
+    MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS1 = 0;
+    //Select LS4RAM and LS5RAM to be the programming space for the CLA
+    MemCfgRegs.LSxMSEL.bit.MSEL_LS4 = 1;
+    MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS4 = 1;
+    MemCfgRegs.LSxMSEL.bit.MSEL_LS5 = 1;
+    MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS5 = 1;
+
+    //--- Initialize CLA task interrupt vectors
+    //    On Type-1 CLAs the MVECT registers accept full 16-bit task addresses as
+    //    opposed to offsets used on older Type-0 CLAs.
+    Cla1Regs.MVECT1 = (uint16_t)(&Cla1Task1);
+    Cla1Regs.MVECT8 = (uint16_t)(&Cla1Task8);
+    //--- Select Task interrupt source
+    DmaClaSrcSelRegs.CLA1TASKSRCSEL1.bit.TASK1 = CLA_TRIG_ADCAINT1;
+
+    //--- CLA1TASKSRCSELx register lock control
+    DmaClaSrcSelRegs.CLA1TASKSRCSELLOCK.bit.CLA1TASKSRCSEL1 = 6;     // Write a 1 to lock (cannot be cleared once set)
+    DmaClaSrcSelRegs.CLA1TASKSRCSELLOCK.bit.CLA1TASKSRCSEL2 = 0;     // Write a 1 to lock (cannot be cleared once set)
+
+    //--- Enable use software to start a task (IACK)
+    Cla1Regs.MCTL.bit.IACKE = 1;        // Enable IACKE to start task using software
+   //--- Force one-time initialization Task 8
+    Cla1Regs.MIER.all = 0x0080;            // Enable CLA interrupt 8
+    asm("  IACK  #0x0080");                // IACK - CLA task force instruction
+    asm("  RPT #3 || NOP");                // Wait at least 4 cycles
+    while(Cla1Regs.MIRUN.bit.INT8 == 1);   // Loop until task completes
+    //--- Enable CLA task interrupts
+    Cla1Regs.MIER.all = 0x0001;        // Enable CLA interrupt 1
+    EDIS;                      // Disable EALLOW protected register access
+}
+
 void InitADC(void)
 {
     EALLOW;
@@ -258,6 +318,12 @@ void InitADC(void)
     AdcaRegs.ADCSOC3CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
     AdcaRegs.ADCSOCPRICTL.bit.SOCPRIORITY = 0;  // All SOCs handled in round-robin mode
+
+    //--- ADCA's EOC3 will interrupt ADCINTA1
+    AdcaRegs.ADCINTSEL1N2.bit.INT1SEL = 3;      // EOC3 triggers the interrupt, depends on the number of ADCSOC
+    AdcaRegs.ADCINTSEL1N2.bit.INT1E = 1;        // Enable the interrupt in the ADC
+    AdcaRegs.ADCINTSEL1N2.bit.INT1CONT = 1;     // Interrupt pulses regardless of flag state
+    AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;      // make sure INT1 flag is cleared
 
     //
     // Power up the ADC

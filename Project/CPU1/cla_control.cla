@@ -1,0 +1,18 @@
+#include "F28x_Project.h"
+#include "control/include/initial_cpu.h"
+#include "control/include/main_control.h"
+#include "control/include/cla_control_shared.h"
+#include <math.h>
+
+#include <CLAmath.h>
+
+
+interrupt void Cla1Task1(void)
+{
+
+}
+
+interrupt void Cla1Task8(void)
+{
+
+}

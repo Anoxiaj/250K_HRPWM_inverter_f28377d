@@ -47,6 +47,7 @@ extern int MEP_ScaleFactor; // Global variable used by the SFO library
 
 void InitCPU(void);
 void InitGPIO(void);
+void InitCLA(void);
 void InitADC(void);
 void InitEPWM(void);
 void error(void);
