@@ -121,14 +121,15 @@ void InitCPU(void)
     // Step 4. Configure the CLA memory spaces first followed by
     // the CLA task vectors
     //
-//    InitCLA();
+InitCLA();
 
     //
     // Step 5. Initialize the Device Peripheral.
     //
 
     // Step 5.1 Initialize GPIO
-//    InitGPIO();
+    InitGPIO();
+
 
     // Step 5.2 Initialize the ADC Device Peripheral.
     InitADC();
@@ -170,6 +171,13 @@ void InitCPU(void)
 
 void InitGPIO(void)
 {
+    EALLOW;
+    GpioCtrlRegs.GPDPUD.bit.GPIO111 = 0;   // Enable pullup on GPIO111
+    GpioDataRegs.GPDCLEAR.bit.GPIO111 = 1;   // Load output latch
+    GpioCtrlRegs.GPDMUX1.bit.GPIO111 = 0;  // GPIO111 = GPIO
+    GpioCtrlRegs.GPDDIR.bit.GPIO111 = 1;   // GPIO111 = output
+    GpioCtrlRegs.GPDCSEL2.bit.GPIO111 = 1;  //select CPU1.CLA to control GPIO
+    EDIS;
 
 }
 
@@ -202,6 +210,8 @@ void InitCLA(void)
     MemCfgRegs.LSxMSEL.bit.MSEL_LS1 = 1;
     MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS1 = 0;
     //Select LS4RAM and LS5RAM to be the programming space for the CLA
+    MemCfgRegs.LSxMSEL.bit.MSEL_LS3 = 1;
+    MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS3 = 1;
     MemCfgRegs.LSxMSEL.bit.MSEL_LS4 = 1;
     MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS4 = 1;
     MemCfgRegs.LSxMSEL.bit.MSEL_LS5 = 1;
@@ -228,6 +238,7 @@ void InitCLA(void)
     while(Cla1Regs.MIRUN.bit.INT8 == 1);   // Loop until task completes
     //--- Enable CLA task interrupts
     Cla1Regs.MIER.all = 0x0001;        // Enable CLA interrupt 1
+
     EDIS;                      // Disable EALLOW protected register access
 }
 
@@ -525,3 +536,4 @@ void error (void)
 //
 // End of file
 //
+
