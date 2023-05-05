@@ -97,7 +97,7 @@ SECTIONS
 {
    /* Allocate program areas: */
    .cinit           : > FLASHB      PAGE = 0, ALIGN(8)
-   .text            : > FLASHC |FLASHE    PAGE = 0, ALIGN(8)
+   .text            : > FLASHC  | FLASHE   PAGE = 0, ALIGN(8)
    codestart        : > BEGIN       PAGE = 0, ALIGN(8)
    .stack           : > RAMM1       PAGE = 1
    .switch          : > FLASHB      PAGE = 0, ALIGN(8)

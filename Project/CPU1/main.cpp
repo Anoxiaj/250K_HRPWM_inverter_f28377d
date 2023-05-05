@@ -16,6 +16,7 @@ void main(void)
 
     for(;;)
           {
+//        GpioDataRegs.GPDDAT.bit.GPIO111 = 1;
               asm ("    NOP");
           }
 

@@ -6,9 +6,27 @@
 
 #include <CLAmath.h>
 
+#define LED01      GpioDataRegs.GPDDAT.bit.GPIO111
+
+#pragma DATA_SECTION(counter, "CLADataLS0");
+static int16 counter;        //LED High or Low
 
 interrupt void Cla1Task1(void)
 {
+    /*
+     * Test CLA Code
+     */
+    if (counter >= 10000) {
+        counter = 1;
+        LED01 = (LED01 == 1) ? 0:1;  //1:TURN ON   0:TURN OFF
+    } else {
+        counter++;
+    }
+
+    //
+    // Uncomment to halt debugger here
+    //
+//    asm(" ESTOP0");
 
 }
 
