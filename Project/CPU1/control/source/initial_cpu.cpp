@@ -313,20 +313,36 @@ void InitADC(void)
     //epwm1 trigger
     //ADCa Current sampling
     AdcaRegs.ADCSOC0CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC0CTL.bit.CHSEL = 0;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
+    AdcaRegs.ADCSOC0CTL.bit.CHSEL = 0;      //SOC0 will convert pin ADCA0, ADCA0->PIN1->Vdc
     AdcaRegs.ADCSOC0CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
     AdcaRegs.ADCSOC1CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC1CTL.bit.CHSEL = 1;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
+    AdcaRegs.ADCSOC1CTL.bit.CHSEL = 0;      //SOC1 will convert pin ADCA0
     AdcaRegs.ADCSOC1CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
     AdcaRegs.ADCSOC2CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC2CTL.bit.CHSEL = 2;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
-    AdcaRegs.ADCSOC2CTL.bit.ACQPS = 14;  //sample wi
+    AdcaRegs.ADCSOC2CTL.bit.CHSEL = 1;      //SOC2 will convert pin ADCA1, ADCA1->PIN3->Vdc
+    AdcaRegs.ADCSOC2CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
     AdcaRegs.ADCSOC3CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC3CTL.bit.CHSEL = 3;      //SOC0 will convert pin ADCB0, ADCB0->PIN6->Vdc
+    AdcaRegs.ADCSOC3CTL.bit.CHSEL = 1;      //SOC3 will convert pin ADCA1
     AdcaRegs.ADCSOC3CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+
+    AdcaRegs.ADCSOC4CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcaRegs.ADCSOC4CTL.bit.CHSEL = 2;      //SOC4 will convert pin ADCA2, ADCA2->PIN5->IL
+    AdcaRegs.ADCSOC4CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+
+    AdcaRegs.ADCSOC5CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcaRegs.ADCSOC5CTL.bit.CHSEL = 2;      //SOC5 will convert pin ADCA2
+    AdcaRegs.ADCSOC5CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+
+    AdcaRegs.ADCSOC6CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcaRegs.ADCSOC6CTL.bit.CHSEL = 3;      //SOC6 will convert pin ADCA3, ADCA3->PIN7->IL
+    AdcaRegs.ADCSOC6CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+
+    AdcaRegs.ADCSOC7CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcaRegs.ADCSOC7CTL.bit.CHSEL = 3;      //SOC7 will convert pin ADCA3
+    AdcaRegs.ADCSOC7CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
     AdcaRegs.ADCSOCPRICTL.bit.SOCPRIORITY = 0;  // All SOCs handled in round-robin mode
 
