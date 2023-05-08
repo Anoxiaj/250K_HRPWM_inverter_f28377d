@@ -2,8 +2,17 @@
 #include "F28x_Project.h"
 #include "control/include/initial_cpu.h"
 #include "control/include/main_control.h"
+#include "control/include/cla_control_shared.h"
 #include "control/include/transforms.h"
 #include "SFO_V8.h"
+
+#ifdef __cplusplus
+#pragma DATA_SECTION("Cla1ToCpuMsgRAM");
+float fResult;
+#else
+#pragma DATA_SECTION(fResult,"Cla1ToCpuMsgRAM");
+float fResult;
+#endif //__cplusplus
 
 float m;       //Modulation ratio
 float theta;
