@@ -344,11 +344,10 @@ void InitADC(void)
     AdcaRegs.ADCSOC7CTL.bit.CHSEL = 3;      //SOC7 will convert pin ADCA3
     AdcaRegs.ADCSOC7CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
-
     AdcaRegs.ADCSOCPRICTL.bit.SOCPRIORITY = 0;  // All SOCs handled in round-robin mode
 
     //--- ADCA's EOC3 will interrupt ADCINTA1
-    AdcaRegs.ADCINTSEL1N2.bit.INT1SEL = 7;      // EOC3 triggers the interrupt, depends on the number of ADCSOC
+    AdcaRegs.ADCINTSEL1N2.bit.INT1SEL = 3;      // EOC3 triggers the interrupt, depends on the number of ADCSOC
     AdcaRegs.ADCINTSEL1N2.bit.INT1E = 1;        // Enable the interrupt in the ADC
     AdcaRegs.ADCINTSEL1N2.bit.INT1CONT = 1;     // Interrupt pulses regardless of flag state
     AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;      // make sure INT1 flag is cleared

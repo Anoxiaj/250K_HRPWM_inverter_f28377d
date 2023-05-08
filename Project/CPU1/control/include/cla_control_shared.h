@@ -26,6 +26,7 @@ extern "C" {
 
 //extern volatile float pll_theta;
 
+extern float fResult;
 
 
 

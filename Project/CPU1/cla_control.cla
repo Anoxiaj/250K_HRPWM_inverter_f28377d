@@ -13,6 +13,9 @@ static int16 counter;        //LED High or Low
 
 interrupt void Cla1Task1(void)
 {
+
+    float result;
+
     /*
      * Test CLA Code
      */
@@ -22,6 +25,13 @@ interrupt void Cla1Task1(void)
     } else {
         counter++;
     }
+
+    /*
+     * test Variables are used
+     */
+    result = AdcaResultRegs.ADCRESULT0 + AdcaResultRegs.ADCRESULT1 ;
+
+    fResult = result;
 
     //
     // Uncomment to halt debugger here
