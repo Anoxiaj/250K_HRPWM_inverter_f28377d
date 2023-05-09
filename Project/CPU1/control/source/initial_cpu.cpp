@@ -121,7 +121,7 @@ void InitCPU(void)
     // Step 4. Configure the CLA memory spaces first followed by
     // the CLA task vectors
     //
-InitCLA();
+    InitCLA();
 
     //
     // Step 5. Initialize the Device Peripheral.
@@ -179,6 +179,33 @@ void InitGPIO(void)
     GpioCtrlRegs.GPDCSEL2.bit.GPIO111 = 1;  //select CPU1.CLA to control GPIO
     EDIS;
 
+    EALLOW;
+    GpioCtrlRegs.GPCPUD.bit.GPIO86 = 0;   // Enable pullup on GPIO86     FLT LED
+    GpioDataRegs.GPCCLEAR.bit.GPIO86 = 1;   // Load output latch
+    GpioCtrlRegs.GPCMUX2.bit.GPIO86 = 0;  // GPIO112 = GPIO
+    GpioCtrlRegs.GPCDIR.bit.GPIO86 = 1;   // GPIO112 = output
+
+    GpioCtrlRegs.GPCPUD.bit.GPIO87 = 0;   // Enable pullup on GPIO87    RUN  LED
+    GpioDataRegs.GPCCLEAR.bit.GPIO87 = 1;   // Load output latch
+    GpioCtrlRegs.GPCMUX2.bit.GPIO87 = 0;  // GPIO112 = GPIO
+    GpioCtrlRegs.GPCDIR.bit.GPIO87 = 1;   // GPIO112 = output
+
+    GpioCtrlRegs.GPBPUD.bit.GPIO50 = 0;   // Enable pullup on GPIO50   PWMENB
+    GpioDataRegs.GPBCLEAR.bit.GPIO50 = 1;   // Load output latch
+    GpioCtrlRegs.GPBMUX2.bit.GPIO50 = 0;  // GPIO112 = GPIO
+    GpioCtrlRegs.GPBDIR.bit.GPIO50 = 1;   // GPIO112 = output
+
+    GpioCtrlRegs.GPBPUD.bit.GPIO51 = 0;   // Enable pullup on GPIO51   PWMENA
+    GpioDataRegs.GPBCLEAR.bit.GPIO51 = 1;   // Load output latch
+    GpioCtrlRegs.GPBMUX2.bit.GPIO51 = 0;  // GPIO112 = GPIO
+    GpioCtrlRegs.GPBDIR.bit.GPIO51 = 1;   // GPIO112 = output
+
+    GpioCtrlRegs.GPBPUD.bit.GPIO52 = 0;   // Enable pullup on GPIO52   RELAY
+    GpioDataRegs.GPBSET.bit.GPIO52 = 1;   // Load output latch
+    GpioCtrlRegs.GPBMUX2.bit.GPIO52 = 0;  // GPIO112 = GPIO
+    GpioCtrlRegs.GPBDIR.bit.GPIO52 = 1;   // GPIO112 = output
+    EDIS;
+
 }
 
 void InitCLA(void)
@@ -223,7 +250,7 @@ void InitCLA(void)
     Cla1Regs.MVECT1 = (uint16_t)(&Cla1Task1);
     Cla1Regs.MVECT8 = (uint16_t)(&Cla1Task8);
     //--- Select Task interrupt source
-    DmaClaSrcSelRegs.CLA1TASKSRCSEL1.bit.TASK1 = CLA_TRIG_ADCAINT1;
+    DmaClaSrcSelRegs.CLA1TASKSRCSEL1.bit.TASK1 = CLA_TRIG_ADCBINT1;
 
     //--- CLA1TASKSRCSELx register lock control
     DmaClaSrcSelRegs.CLA1TASKSRCSELLOCK.bit.CLA1TASKSRCSEL1 = 6;     // Write a 1 to lock (cannot be cleared once set)
@@ -320,37 +347,38 @@ void InitADC(void)
     AdcaRegs.ADCSOC1CTL.bit.CHSEL = 0;      //SOC1 will convert pin ADCA0
     AdcaRegs.ADCSOC1CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
-    AdcaRegs.ADCSOC2CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC2CTL.bit.CHSEL = 1;      //SOC2 will convert pin ADCA1, ADCA1->PIN3->Vdc
-    AdcaRegs.ADCSOC2CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+    //ADCb voltage sampling
+    AdcbRegs.ADCSOC0CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcbRegs.ADCSOC0CTL.bit.CHSEL = 0;      //SOC2 will convert pin ADCA1, ADCA1->PIN3->Vdc
+    AdcbRegs.ADCSOC0CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
-    AdcaRegs.ADCSOC3CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC3CTL.bit.CHSEL = 1;      //SOC3 will convert pin ADCA1
-    AdcaRegs.ADCSOC3CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+    AdcbRegs.ADCSOC1CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcbRegs.ADCSOC1CTL.bit.CHSEL = 1;      //SOC3 will convert pin ADCA1
+    AdcbRegs.ADCSOC1CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
-    AdcaRegs.ADCSOC4CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC4CTL.bit.CHSEL = 2;      //SOC4 will convert pin ADCA2, ADCA2->PIN5->IL
-    AdcaRegs.ADCSOC4CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+    AdcbRegs.ADCSOC2CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcbRegs.ADCSOC2CTL.bit.CHSEL = 2;      //SOC4 will convert pin ADCA2, ADCA2->PIN5->IL
+    AdcbRegs.ADCSOC2CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
-    AdcaRegs.ADCSOC5CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC5CTL.bit.CHSEL = 2;      //SOC5 will convert pin ADCA2
-    AdcaRegs.ADCSOC5CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+    AdcbRegs.ADCSOC3CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcbRegs.ADCSOC3CTL.bit.CHSEL = 0;      //SOC5 will convert pin ADCA2
+    AdcbRegs.ADCSOC3CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
-    AdcaRegs.ADCSOC6CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC6CTL.bit.CHSEL = 3;      //SOC6 will convert pin ADCA3, ADCA3->PIN7->IL
-    AdcaRegs.ADCSOC6CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+    AdcbRegs.ADCSOC4CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcbRegs.ADCSOC4CTL.bit.CHSEL = 1;      //SOC6 will convert pin ADCA3, ADCA3->PIN7->IL
+    AdcbRegs.ADCSOC4CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
-    AdcaRegs.ADCSOC7CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
-    AdcaRegs.ADCSOC7CTL.bit.CHSEL = 3;      //SOC7 will convert pin ADCA3
-    AdcaRegs.ADCSOC7CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
+    AdcbRegs.ADCSOC5CTL.bit.TRIGSEL =  5;  // Trigger using ePWM1-ADCSOCA
+    AdcbRegs.ADCSOC5CTL.bit.CHSEL = 2;      //SOC7 will convert pin ADCA3
+    AdcbRegs.ADCSOC5CTL.bit.ACQPS = 14;  //sample window is (acqps+1)*SYSCLK cycles 75ns    SYSCLK=5ns
 
     AdcaRegs.ADCSOCPRICTL.bit.SOCPRIORITY = 0;  // All SOCs handled in round-robin mode
 
     //--- ADCA's EOC3 will interrupt ADCINTA1
-    AdcaRegs.ADCINTSEL1N2.bit.INT1SEL = 3;      // EOC3 triggers the interrupt, depends on the number of ADCSOC
-    AdcaRegs.ADCINTSEL1N2.bit.INT1E = 1;        // Enable the interrupt in the ADC
-    AdcaRegs.ADCINTSEL1N2.bit.INT1CONT = 1;     // Interrupt pulses regardless of flag state
-    AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;      // make sure INT1 flag is cleared
+    AdcbRegs.ADCINTSEL1N2.bit.INT1SEL = 5;      // EOC3 triggers the interrupt, depends on the number of ADCSOC
+    AdcbRegs.ADCINTSEL1N2.bit.INT1E = 1;        // Enable the interrupt in the ADC
+    AdcbRegs.ADCINTSEL1N2.bit.INT1CONT = 1;     // Interrupt pulses regardless of flag state
+    AdcbRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;      // make sure INT1 flag is cleared
 
     //
     // Power up the ADC

@@ -5,6 +5,7 @@
 #include "control/include/cla_control_shared.h"
 #include "control/include/transforms.h"
 #include "SFO_V8.h"
+#include "control/include/common_function.h"
 
 #ifdef __cplusplus
 #pragma DATA_SECTION("Cla1ToCpuMsgRAM");
@@ -20,11 +21,13 @@ float theta;
 #define M 0.83 //Modulation ratio
 const float PIEx2 = 6.283185307179586476925286766559;
 const float PIEx100 = 314.15926535897932384626433832795;
+uint16_t count;
 
 
 void mainDataInit(void)
 {
     theta = 0;
+    count = 0;
 
 }
 
@@ -32,6 +35,17 @@ __interrupt void MainControlISR(void)
 {
     float volume;
     Uint32 temp,temp1;
+
+    // 20000---1000ms 400--20ms
+
+    if(count >= 400 ) {
+        GpioDataRegs.GPBSET.bit.GPIO50 = 1;   // Load output latch  ENPWMB (DRIVER BOARD IN MOTHER BOARD)
+        GpioDataRegs.GPBSET.bit.GPIO51 = 1;   // Load output latch  ENPWMA (EDGE)
+        PWM_Enable();
+    } else {
+        count++;
+    }
+
     /*
      * theta=wt , w=2pie f
      */
