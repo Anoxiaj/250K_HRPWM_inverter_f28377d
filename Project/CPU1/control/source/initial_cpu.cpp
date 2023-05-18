@@ -181,7 +181,7 @@ void InitGPIO(void)
 
     EALLOW;
     GpioCtrlRegs.GPCPUD.bit.GPIO86 = 0;   // Enable pullup on GPIO86     FLT LED
-    GpioDataRegs.GPCCLEAR.bit.GPIO86 = 1;   // Load output latch
+    GpioDataRegs.GPCSET.bit.GPIO86 = 1;   // Load output latch
     GpioCtrlRegs.GPCMUX2.bit.GPIO86 = 0;  // GPIO112 = GPIO
     GpioCtrlRegs.GPCDIR.bit.GPIO86 = 1;   // GPIO112 = output
 
@@ -574,6 +574,11 @@ void InitEPWM(void)
 //
 void error (void)
 {
+    EALLOW;
+
+    GpioDataRegs.GPCCLEAR.bit.GPIO86 = 1;   // GUZHANG LED
+
+    EDIS;
     ESTOP0;         // Stop here and handle error
 }
 

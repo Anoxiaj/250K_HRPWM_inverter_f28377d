@@ -37,10 +37,10 @@ __interrupt void MainControlISR(void)
     Uint32 temp,temp1;
 
     // 20000---1000ms 400--20ms
-
     if(count >= 400 ) {
         GpioDataRegs.GPBSET.bit.GPIO50 = 1;   // Load output latch  ENPWMB (DRIVER BOARD IN MOTHER BOARD)
         GpioDataRegs.GPBSET.bit.GPIO51 = 1;   // Load output latch  ENPWMA (EDGE)
+
         PWM_Enable();
     } else {
         count++;
